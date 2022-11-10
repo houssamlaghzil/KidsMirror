@@ -1,158 +1,170 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>MagicMirror²</title>
-    <meta name="google" content="notranslate" />
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<head>
+  <title>MagicMirror²</title>
+  <meta name="google" content="notranslate" />
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
 
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
-    <link rel="stylesheet" type="text/css" href="css/main.css" />
-    <link rel="stylesheet" type="text/css" href="fonts/roboto.css" />
-    <!-- custom.css is loaded by the loader.js to make sure it's loaded after the module css files. -->
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+  <link rel="stylesheet" type="text/css" href="css/main.css" />
+  <link rel="stylesheet" type="text/css" href="fonts/roboto.css" />
+  <!-- custom.css is loaded by the loader.js to make sure it's loaded after the module css files. -->
 
-    <script type="text/javascript">
-      window.mmVersion = "#VERSION#";
-    </script>
-  </head>
-  <body>
-    <div class="region fullscreen below"><div class="container"></div></div>
-    <div class="region top bar">
-      <div class="container"><button class="depth" type="button" id="spotify">&#9658;</button></div>
-      <div class="region top left"><div class="container"></div></div>
-      <div class="region top center"><div class="container"></div></div>
-      <div class="region top right"><div class="container"></div></div>
-    </div>
-    <div class="region upper third"><div class="container"></div></div>
-    <div class="region middle center"><div class="container"></div></div>
-    <div class="region lower third">
-      <div class="container"><br /></div>
-    </div>
-    <div class="region bottom bar">
-      <div class="container"></div>
-      <div class="region bottom left"><div class="container"></div></div>
-      <div class="region bottom center"><div class="container"></div></div>
-      <div class="region bottom right">
-        <div id="gif"></div>
-        <div class="container"></div>
-      </div>
-    </div>
-    <div class="region fullscreen above"><div class="container"></div></div>
-    <script type="text/javascript" src="socket.io/socket.io.js"></script>
-    <script type="module">
-      import myJson from "./modules/MMM-Spotify/USERNAME_token.json" assert { type: "json" };
+  <script type="text/javascript">
+    window.mmVersion = "#VERSION#";
+  </script>
+</head>
+<body>
+<div class="region fullscreen below"><div class="container"></div></div>
+<div class="region top bar">
+  <div class="container"></div>
+  <div class="region top left"><div class="container"></div></div>
+  <div class="region top center">
+    <div class="container"></div>
+  </div>
+  <div class="region top right"><div class="container"></div></div>
+</div>
+<div class="region upper third"><div class="container"></div></div>
+<div class="region middle center"><div class="container"></div></div>
+<div class="region lower third">
+  <div class="container"><br /></div>
+</div>
+<div class="region bottom bar">
+  <div class="container"></div>
+  <div class="region bottom left"><div class="container"></div></div>
+  <div class="region bottom center"><div class="container"></div></div>
+  <div class="region bottom right">
+    <div id="gif"></div>
+    <div class="container"></div>
+  </div>
+</div>
+<div class="region fullscreen above"><div class="container"></div></div>
+<script type="text/javascript" src="socket.io/socket.io.js"></script>
+<script type="module">
+  // import myJson from "./modules/MMM-Spotify/USERNAME_token.json" assert { type: "json" };
 
-      const url = "https://api.spotify.com/v1/me/player";
-      const token = myJson.access_token;
-      let emotion;
+  const url = "https://api.spotify.com/v1/me/player";
+  // const token = myJson.access_token;
+  let emotion;
+  let tab = [];
+  let firstPlay = true;
 
-      setInterval(async () => {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
-            emotion = this.responseText;
-            console.log(emotion);
-          }
-        };
-        xhttp.open("GET", "http://192.168.61.54:5000/api/emotion", true);
-        xhttp.send();
-        switch (emotion) {
-          case "happy":
-            doRequest(url, token, "spotify:playlist:2vazlqQDbuJjnETFrxaUQQ", Math.floor(Math.random() * 10));
-            document.getElementById("gif").innerHTML =
-              "<img src='https://img.wattpad.com/525adda25894df51d532d541d45d8b4d71f61e9d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f7279496d6167652f356b4d67446858377758414453673d3d2d3535343936393633312e31353231306662383634336335316462313536393233363431352e676966'  style=\"height: 250px\" alt='gif'/>";
-            break;
-          case "sad":
-            doRequest(url, token, "spotify:playlist:2vazlqQDbuJjnETFrxaUQQ", Math.floor(Math.random() * 10));
-            document.getElementById("gif").innerHTML = '<img src="https://images6.fanpop.com/image/photos/38800000/Sadness-sadness-inside-out-38809148-500-350.gif"  style="height: 250px" alt="gif"/>';
-            break;
-          case "neutral":
-            doRequest(url, token, "spotify:album:0tLse8smJdcX9ucY2UXBGS", Math.floor(Math.random() * 8));
-            document.getElementById("gif").innerHTML = '<img src="https://gifimage.net/wp-content/uploads/2018/11/poker-face-anime-gif-4.gif"  style="height: 250px" alt="gif"/>';
-            break;
-          case "surprised":
-            doRequest(url, token, "spotify:album:6KDb45clWU0HGvOIZCkAqx", Math.floor(Math.random() * 10));
-            document.getElementById("gif").innerHTML =
-              '<img src="https://img.wattpad.com/32730affec45f8d0f550f2587acd3af062e76eae/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f7279496d6167652f7a5f666e775465335f545f5a79673d3d2d3535343936393633312e313532313066626533646137613237643336323132373633303238302e676966"  style="height: 250px" alt="gif"/>';
-            break;
-          case "discusted":
-            doRequest(url, token, "spotify:album:6KDb45clWU0HGvOIZCkAqx", Math.floor(Math.random() * 10));
-            document.getElementById("gif").innerHTML = '<img src="https://i.gifer.com/Oa4E.gif"  style="height: 250px" alt="gif"/>';
-            break;
+  setInterval(async () => {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        const obj = JSON.parse(this.responseText);
+        emotion = obj[Math.floor(Math.random() * 5)].id;
+        console.log(emotion);
+        tab.push(emotion);
+        if (tab.length == 3) {
+          tab.shift();
+        } else if (tab.length > 1) {
+          firstPlay = false;
         }
-      }, 5000);
-      /*
-async function retour(){
-  return new Promise(function(resolve, reject){
-    setInterval(async ()=>{
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-          emotion = this.responseText
-      };
-      xhttp.open("GET", "http://192.168.61.54:5000/api/emotion", true);
-      xhttp.send();
-      resolve(emotion)
-    },5000)
-  })
-  retour();
-}
-*/
-
-      function doRequest(url, token, uri, index) {
-        fetch(url + "/play", {
-          method: "put",
-          headers: new Headers({
-            Authorization: "Bearer " + token,
-            "Content-Type": "application/json"
-          }),
-          body: JSON.stringify({
-            context_uri: uri,
-            offset: {
-              position: index
-            },
-            position_ms: 0
-          })
-        });
+        console.log(tab);
+        console.log(firstPlay || tab[tab.length - 2] != tab[tab.length - 1]);
       }
+    };
+    xhttp.open("GET", "https://fakestoreapi.com/products", true);
+    xhttp.send();
+    if (firstPlay || tab[tab.length - 2] != tab[tab.length - 1]) {
+      switch (emotion) {
+        case 1:
+          // doRequest(url, token, "spotify:playlist:2vazlqQDbuJjnETFrxaUQQ", Math.floor(Math.random() * 10));
+          document.body.style = "background-image: url('https://img.wattpad.com/525adda25894df51d532d541d45d8b4d71f61e9d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f7279496d6167652f356b4d67446858377758414453673d3d2d3535343936393633312e31353231306662383634336335316462313536393233363431352e676966');background-position: center;\n" +
+            "  background-repeat: no-repeat;\n" +
+            "  background-size: cover;"
+          break;
+        case 2:
+          document.body.style = "background-image: url('https://images6.fanpop.com/image/photos/38800000/Sadness-sadness-inside-out-38809148-500-350.gif');background-position: center;\n" +
+            "  background-repeat: no-repeat;\n" +
+            "  background-size: cover;"
+          //  doRequest(url, token, "spotify:playlist:2vazlqQDbuJjnETFrxaUQQ", Math.floor(Math.random() * 10));
+          break;
+        case 3:
+          document.body.style = "background-image: url('https://gifimage.net/wp-content/uploads/2018/11/poker-face-anime-gif-4.gif');background-position: center;\n" +
+            "  background-repeat: no-repeat;\n" +
+            "  background-size: cover;"
+          // doRequest(url, token, "spotify:album:0tLse8smJdcX9ucY2UXBGS", Math.floor(Math.random() * 8));
+          break;
+        case 4:
+          document.body.style = "background-image: url('https://img.wattpad.com/32730affec45f8d0f550f2587acd3af062e76eae/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f7279496d6167652f7a5f666e775465335f545f5a79673d3d2d3535343936393633312e313532313066626533646137613237643336323132373633303238302e676966');background-position: center;\n" +
+            "  background-repeat: no-repeat;\n" +
+            "  background-size: cover;"
+          //  doRequest(url, token, "spotify:album:6KDb45clWU0HGvOIZCkAqx", Math.floor(Math.random() * 10));
+          break;
+        case 5:
+          document.body.style = "background-image: url('https://i.gifer.com/Oa4E.gif');background-position: center;\n" +
+            "  background-repeat: no-repeat;\n" +
+            "  background-size: cover;"
+          //   doRequest(url, token, "spotify:album:6KDb45clWU0HGvOIZCkAqx", Math.floor(Math.random() * 10));
+          break;
+      }
+    }
+  }, 2000);
 
-      fetch(url + "/devices", {
-        method: "get",
-        headers: new Headers({
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json"
-        })
+  function doRequest(url, token, uri, index) {
+    fetch(url + "/play", {
+      method: "put",
+      headers: new Headers({
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json"
+      }),
+      body: JSON.stringify({
+        context_uri: uri,
+        offset: {
+          position: index
+        },
+        position_ms: 0
       })
-        .then((response) => response.text())
-        .then((data) => {
-          const resp = JSON.parse(data);
-          fetch(url, {
-            method: "put",
+    });
+  }
+  /*
+        setTimeout(() => {
+          fetch(url + "/devices", {
+            method: "get",
             headers: new Headers({
               Authorization: "Bearer " + token,
               "Content-Type": "application/json"
-            }),
-            body: JSON.stringify({
-              device_ids: [resp.devices[0].id]
             })
-          });
-        });
-    </script>
-    <script type="text/javascript" src="vendor/node_modules/nunjucks/browser/nunjucks.min.js"></script>
-    <script type="text/javascript" src="js/defaults.js"></script>
-    <script type="text/javascript" src="#CONFIG_FILE#"></script>
-    <script type="text/javascript" src="vendor/vendor.js"></script>
-    <script type="text/javascript" src="modules/default/defaultmodules.js"></script>
-    <script type="text/javascript" src="js/logger.js"></script>
-    <script type="text/javascript" src="translations/translations.js"></script>
-    <script type="text/javascript" src="js/translator.js"></script>
-    <script type="text/javascript" src="js/class.js"></script>
-    <script type="text/javascript" src="js/module.js"></script>
-    <script type="text/javascript" src="js/loader.js"></script>
-    <script type="text/javascript" src="js/socketclient.js"></script>
-    <script type="text/javascript" src="js/main.js"></script>
-  </body>
+          })
+            .then((response) => response.text())
+            .then((data) => {
+              const resp = JSON.parse(data);
+              fetch(url, {
+                method: "put",
+                headers: new Headers({
+                  Authorization: "Bearer " + token,
+                  "Content-Type": "application/json"
+                }),
+                body: JSON.stringify({
+                  device_ids: [resp.devices[0].id]
+                })
+              });
+            });
+        }, 2000);
+
+        */
+
+</script>
+<script type="text/javascript" src="vendor/node_modules/nunjucks/browser/nunjucks.min.js"></script>
+<script type="text/javascript" src="js/defaults.js"></script>
+<script type="text/javascript" src="#CONFIG_FILE#"></script>
+<script type="text/javascript" src="vendor/vendor.js"></script>
+<script type="text/javascript" src="modules/default/defaultmodules.js"></script>
+<script type="text/javascript" src="js/logger.js"></script>
+<script type="text/javascript" src="translations/translations.js"></script>
+<script type="text/javascript" src="js/translator.js"></script>
+<script type="text/javascript" src="js/class.js"></script>
+<script type="text/javascript" src="js/module.js"></script>
+<script type="text/javascript" src="js/loader.js"></script>
+<script type="text/javascript" src="js/socketclient.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+</body>
 </html>
