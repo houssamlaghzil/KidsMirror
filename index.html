@@ -35,7 +35,7 @@
   <div class="container"><br /></div>
 </div>
 <div class="region bottom bar">
-  <div class="container" onclick="changeMode()">Change</div>
+  <div class="container" onclick="changeMode()">Jeux</div>
   <div class="region bottom left"><div class="container"></div></div>
   <div class="region bottom center"><div class="container"></div></div>
   <div class="region bottom right">
@@ -75,14 +75,23 @@
   </div>
 </div>
 
+<div id="endOfGameScreen" class="container hiddenItem opacity0">
+  <div id="endGameScore"></div>
+  <div id="endGameMsg"></div>
+  <div style="width: 50%;max-width: 400px; min-width: 100px">
+    <div class="difficultySelect" onclick="gameObj.start()"><div>Changer de difficulté</div></div>
+    <div class="difficultySelect" onclick="gameObj.launchGame()"><div>Recommencer</div></div>
+    <div class="difficultySelect" onclick="changeMode()"><div>Quitter</div></div>
+  </div>
+</div>
+
 <script type="text/javascript" src="socket.io/socket.io.js"></script>
 <script type="text/javascript" src="js/commonFunction.js"></script>
 <script type="text/javascript" src="js/emotions.js"></script>
 <script type="text/javascript" src="js/game.js"></script>
 <script>
   let isGameMode = false
-  let gameObj = new Game(document.getElementById("timer"), document.getElementById("scoreProgressBar"),document.getElementById("gameScreen"),
-    document.getElementById("centerGameEmotion"), document.getElementById("centerGameDifficulty"))
+  let gameObj = new Game(document.getElementById("gameScreen"), document.getElementById("endOfGameScreen"),)
 
   function changeMode(){
     isGameMode = !isGameMode
@@ -90,7 +99,7 @@
       gameObj.start()
     }
     else{
-      gameObj.stopGame()
+      gameObj.quitGame()
     }
   }
 </script>
@@ -106,6 +115,7 @@
 
   setInterval(async () => {
     if(!isGameMode) {
+      console.log("emotions values identified", tab)
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {

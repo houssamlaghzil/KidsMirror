@@ -291,11 +291,14 @@ button.depth:active {
 
 .hiddenItem{
   display: none !important;
-  visibility: collapse !important;;
-  pointer-events: none !important;;
+  visibility: collapse !important;
+  pointer-events: none !important;
+}
+.opacity0{
+  opacity: 0;
 }
 
-#gameScreen{
+#gameScreen, #endOfGameScreen{
   position: absolute;
   top: 0;
   left: 0;
@@ -303,11 +306,21 @@ button.depth:active {
   right: 0;
   width: 100%;
   height: 100%;
-  z-index: 100000;
+  z-index: 1000;
   background: black;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+#endOfGameScreen{
+  z-index: 10000;
+  align-items: center;
+  transition: opacity .5s ease;
+}
+
+#endGameScore{
+  font-size: 2em;
+  color: whitesmoke;
 }
 
 /*region top game screen*/
@@ -373,10 +386,12 @@ button.depth:active {
   background: greenyellow;
   border-radius: 20px;
   padding: 10px;
-  margin: 5px;
   width: 100%;
+  min-width: 200px;
   text-align: center;
   color: black;
+  box-sizing: border-box;
+  margin: 10px 0 10px 0;
 }
 
 #centerGameEmotion{

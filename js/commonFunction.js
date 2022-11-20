@@ -21,6 +21,10 @@ HTMLElement.prototype.applyClass = function(className, shouldApply){
 }
 //endregion
 
+function isNullOrUndefined(value){
+	return value === undefined || value === null || value === "";
+}
+
 function getTimeFormatted(timeInSec){
 	const mn = Math.floor(timeInSec / 60)
 	const sec = timeInSec%60
