@@ -35,7 +35,7 @@
   <div class="container"><br /></div>
 </div>
 <div class="region bottom bar">
-  <div class="container"></div>
+  <div class="container" onclick="changeMode()">Change</div>
   <div class="region bottom left"><div class="container"></div></div>
   <div class="region bottom center"><div class="container"></div></div>
   <div class="region bottom right">
@@ -44,7 +44,57 @@
   </div>
 </div>
 <div class="region fullscreen above"><div class="container"></div></div>
+
+<div id="gameScreen" class="container hiddenItem">
+  <div id="topGameScreen">
+    <div id="score">
+      <div id="scoreProgressBar" class="progressBar">
+        <div style="width:0"></div>
+      </div>
+    </div>
+    <div id="timer"></div>
+    <div></div>
+  </div>
+
+  <div id="centerGameScreen">
+    <div id="centerGameEmotion" class="hiddenItem">
+      <div id="emotionToReproduct"></div>
+      <div id="currentEmotion"></div>
+    </div>
+    <div id="centerGameDifficulty" class="hiddenItem">
+      <div class="difficultySelect" onclick="gameObj.launchGame(1)">Facile</div>
+      <div class="difficultySelect" onclick="gameObj.launchGame(2)">Moyen</div>
+      <div class="difficultySelect" onclick="gameObj.launchGame(3)">Difficile</div>
+    </div>
+  </div>
+
+  <div id="bottomGameScreen">
+    <div></div>
+    <div onclick="changeMode()">Quitter</div>
+    <div></div>
+  </div>
+</div>
+
 <script type="text/javascript" src="socket.io/socket.io.js"></script>
+<script type="text/javascript" src="js/commonFunction.js"></script>
+<script type="text/javascript" src="js/emotions.js"></script>
+<script type="text/javascript" src="js/game.js"></script>
+<script>
+  let isGameMode = false
+  let gameObj = new Game(document.getElementById("timer"), document.getElementById("scoreProgressBar"),document.getElementById("gameScreen"),
+    document.getElementById("centerGameEmotion"), document.getElementById("centerGameDifficulty"))
+
+  function changeMode(){
+    isGameMode = !isGameMode
+    if(isGameMode){
+      gameObj.start()
+    }
+    else{
+      gameObj.stopGame()
+    }
+  }
+</script>
+
 <script type="module">
   // import myJson from "./modules/MMM-Spotify/USERNAME_token.json" assert { type: "json" };
 
@@ -55,56 +105,31 @@
   let firstPlay = true;
 
   setInterval(async () => {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
-        const obj = JSON.parse(this.responseText);
-        emotion = obj[Math.floor(Math.random() * 5)].id;
-        console.log(emotion);
-        tab.push(emotion);
-        if (tab.length == 3) {
-          tab.shift();
-        } else if (tab.length > 1) {
-          firstPlay = false;
+    if(!isGameMode) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          const obj = JSON.parse(this.responseText);
+          emotion = obj[Math.floor(Math.random() * 5)].id;
+          console.log(emotion);
+          tab.push(emotion);
+          if (tab.length == 3) {
+            tab.shift();
+          } else if (tab.length > 1) {
+            firstPlay = false;
+          }
+          console.log(tab);
+          console.log(firstPlay || tab[tab.length - 2] != tab[tab.length - 1]);
         }
-        console.log(tab);
-        console.log(firstPlay || tab[tab.length - 2] != tab[tab.length - 1]);
-      }
-    };
-    xhttp.open("GET", "https://fakestoreapi.com/products", true);
-    xhttp.send();
-    if (firstPlay || tab[tab.length - 2] != tab[tab.length - 1]) {
-      switch (emotion) {
-        case 1:
-          // doRequest(url, token, "spotify:playlist:2vazlqQDbuJjnETFrxaUQQ", Math.floor(Math.random() * 10));
-          document.body.style = "background-image: url('https://img.wattpad.com/525adda25894df51d532d541d45d8b4d71f61e9d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f7279496d6167652f356b4d67446858377758414453673d3d2d3535343936393633312e31353231306662383634336335316462313536393233363431352e676966');background-position: center;\n" +
-            "  background-repeat: no-repeat;\n" +
-            "  background-size: cover;"
-          break;
-        case 2:
-          document.body.style = "background-image: url('https://images6.fanpop.com/image/photos/38800000/Sadness-sadness-inside-out-38809148-500-350.gif');background-position: center;\n" +
-            "  background-repeat: no-repeat;\n" +
-            "  background-size: cover;"
-          //  doRequest(url, token, "spotify:playlist:2vazlqQDbuJjnETFrxaUQQ", Math.floor(Math.random() * 10));
-          break;
-        case 3:
-          document.body.style = "background-image: url('https://gifimage.net/wp-content/uploads/2018/11/poker-face-anime-gif-4.gif');background-position: center;\n" +
-            "  background-repeat: no-repeat;\n" +
-            "  background-size: cover;"
-          // doRequest(url, token, "spotify:album:0tLse8smJdcX9ucY2UXBGS", Math.floor(Math.random() * 8));
-          break;
-        case 4:
-          document.body.style = "background-image: url('https://img.wattpad.com/32730affec45f8d0f550f2587acd3af062e76eae/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f7279496d6167652f7a5f666e775465335f545f5a79673d3d2d3535343936393633312e313532313066626533646137613237643336323132373633303238302e676966');background-position: center;\n" +
-            "  background-repeat: no-repeat;\n" +
-            "  background-size: cover;"
-          //  doRequest(url, token, "spotify:album:6KDb45clWU0HGvOIZCkAqx", Math.floor(Math.random() * 10));
-          break;
-        case 5:
-          document.body.style = "background-image: url('https://i.gifer.com/Oa4E.gif');background-position: center;\n" +
-            "  background-repeat: no-repeat;\n" +
-            "  background-size: cover;"
-          //   doRequest(url, token, "spotify:album:6KDb45clWU0HGvOIZCkAqx", Math.floor(Math.random() * 10));
-          break;
+      };
+      xhttp.open("GET", "https://fakestoreapi.com/products", true);
+      xhttp.send();
+
+      if (firstPlay || tab[tab.length - 2] != tab[tab.length - 1]) {
+        document.body.style = "background-image: url('" + emotionsObj[emotion].img + "');background-position: center;\n" +
+          "  background-repeat: no-repeat;\n" +
+          "  background-size: cover;"
+
       }
     }
   }, 2000);
@@ -166,5 +191,6 @@
 <script type="text/javascript" src="js/loader.js"></script>
 <script type="text/javascript" src="js/socketclient.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
+
 </body>
 </html>
