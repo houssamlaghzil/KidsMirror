@@ -1,7 +1,14 @@
 /**
  * Totally depends on Html elements and structure inside gameScreenEl and endOfGameScreenEl
+ *
+ * lots of actions like start game, select difficulty or quit should be executed thanks to a vocal command.
+ * But for now, we use only
  */
 class Game {
+	MAX_CHRONO = 40
+	EXCLUDE_NEUTRAL = true
+	SIMULATION_COUNTDOWN = -1 // in secondes
+
 	chrono = 0
 	emotionsTodo = []
 	emotionCount = -1
@@ -15,9 +22,12 @@ class Game {
 		},
 		3:{ // hard
 			"nbToDo":9
+		},
+		4:{ //marathon
+			"nbToDo":this.MAX_CHRONO*3
 		}
-		//4 : marathon?
 	}
+	isMarathonMode = false
 
 	constructor(gameScreenEl, endOfGameScreenEl) {
 		this.gameScreenEl = gameScreenEl
@@ -32,19 +42,24 @@ class Game {
 		this.endGameMsgEl = this.endOfGameScreenEl.querySelector("#endGameMsg")
 	}
 
+
 	//region init game
+	/**
+	 * display game screen, hide all element that should not been visible
+	 */
 	start(){
 		this.setTimerElementValue(true)
-		elementApplyClass(this.gameScreenEl, "hiddenItem", false)
-		this.showEndGameScreen(true)
+		this.gameScreenEl.animateShow(true);
 		elementApplyClass(this.centerDifficultyEl, "hiddenItem", false)
+
+		this.endOfGameScreenEl.animateShow(false)
 		elementApplyClass(this.centerEmotionEl, "hiddenItem", true)
 		elementApplyClass(this.scoreProgressBarEl, "hiddenItem", true)
 	}
 
 	/**
 	 * Init game parameter (Start chrono, define emotions to reproduce, show/hide required elements)
-	 * Should be executed when the party will start, after selecting a difficulty
+	 * Should be executed when the party will start, after having select a difficulty
 	 * @param difficultySelected
 	 */
 	launchGame(difficultySelected){
@@ -52,23 +67,33 @@ class Game {
 			difficultySelected = this.difficulty
 		}
 
+		this.difficulty = difficultySelected
+		this.isMarathonMode = this.difficulty === 4
+		if(this.isMarathonMode){
+			this.scoreProgressBarEl.children[0].style.width = "100%"
+		}
+
 		this.stopChrono()
 		elementApplyClass(this.centerDifficultyEl, "hiddenItem", true)
 		elementApplyClass(this.centerEmotionEl, "hiddenItem", false)
 		elementApplyClass(this.scoreProgressBarEl, "hiddenItem", false)
-		this.showEndGameScreen(true)
+		this.endOfGameScreenEl.animateShow(false)
 
 		this.emotionCount = -1
-		this.difficulty = difficultySelected
 		this._fillEmotions()
 		this.nextEmotion()
 
-		this.chrono = 40
+		this.chrono = this.MAX_CHRONO
 		this.chronoId = setInterval(this.decrementChrono.bind(this), 1000)
 		this.setTimerElementValue(false)
 	}
 	_fillEmotions(){
-		const emotionKeys = Object.keys(emotionsObj)
+		const emotionsObjCopy = {... emotionsObj}
+		if(this.EXCLUDE_NEUTRAL){
+			delete emotionsObjCopy[3]
+		}
+
+		const emotionKeys = Object.keys(emotionsObjCopy)
 		this.emotionsTodo = []
 		for (let i=0; this.emotionsTodo.length<this.difficultyObj[this.difficulty].nbToDo; i++){
 			const newEmotion = emotionKeys[randomInt(0, emotionKeys.length-1)]
@@ -79,8 +104,14 @@ class Game {
 		console.log("emotions to do =", this.emotionsTodo)
 	}
 	//endregion
+
+	/**
+	 * should be called when user do a new emotion
+	 * @param emotion
+	 */
 	checkEmotion(emotion){
-		if(emotion === this.emotionsTodo[this.emotionCount]){
+		console.log("CHECK EMOTION", emotion, this.emotionsTodo[this.emotionCount])
+		if(emotion == this.emotionsTodo[this.emotionCount]){
 			this.nextEmotion()
 		}
 	}
@@ -103,16 +134,23 @@ class Game {
 			"  background-repeat: no-repeat;\n" +
 			"  background-size: cover;"
 	}
+	showUserEmotion(emotion){
+		this.centerEmotionEl.children[1].style = "background-image: url('" + emotion.img + "');background-position: center;\n" +
+			"  background-repeat: no-repeat;\n" +
+			"  background-size: cover;"
+	}
 
 	//region end of game
 	endOfGame(){
 		this.stopChrono()
 		this.setTimerElementValue(true)
-
-		this.endGameScoreEl.innerText = "" + this.emotionCount + "/" + this.emotionsTodo.length
 		let msg = ""
-		const ratio = this.emotionCount/this.emotionsTodo.length*100
-		if(this.emotionCount>=this.emotionsTodo.length){
+
+		this.endGameScoreEl.innerText = "" + this.emotionCount + (this.isMarathonMode ? " en " + getTimeFormatted(this.MAX_CHRONO) :  "/" + this.emotionsTodo.length)
+		const ratio = (this.isMarathonMode ? this.emotionCount / this.MAX_CHRONO : this.emotionCount / this.emotionsTodo.length) * 100
+
+		//region messages depending on ratio
+		if(ratio>=100){
 			msg = "Tu as fait un score parfait. Bravo !"
 		}
 		else if(ratio>=70){
@@ -124,21 +162,24 @@ class Game {
 		else{
 			msg = "On dirait que tu ne me maîtrises pas encore très bien.<br>N'hésite pas à demander de l'aide"
 		}
+		//endregion
+
 		this.endGameMsgEl.innerHTML = msg
-		this.showEndGameScreen(false)
+		this.endOfGameScreenEl.animateShow(true)
 		//display end game screen
-	}
-	showEndGameScreen(shouldHide){
-		elementApplyClass(this.endOfGameScreenEl, "hiddenItem", shouldHide)
-		setTimeout(function(){elementApplyClass(this.endOfGameScreenEl, "opacity0", shouldHide)}.bind(this), 500)
 	}
 
 	/**
 	 * use to quit game mode,
 	 */
 	quitGame(){
-		elementApplyClass(this.gameScreenEl, "hiddenItem", true)
-		elementApplyClass(this.endOfGameScreenEl, "hiddenItem", true)
+		if(this.endOfGameScreenEl.hasClass("hiddenItem")){
+			this.gameScreenEl.animateShow(false)
+		}
+		else{
+			elementApplyClass(this.gameScreenEl, "hiddenItem", true)
+			this.endOfGameScreenEl.animateShow(false)
+		}
 		this.stopChrono()
 	}
 	//endregion
@@ -146,13 +187,13 @@ class Game {
 	//region chrono
 	decrementChrono(){
 		this.chrono --
-		if(this.chrono%1===0){
-			//simulate player good reproduction
+		if(this.SIMULATION_COUNTDOWN>0 && this.chrono % this.SIMULATION_COUNTDOWN === 0){
+			//simulate player success to do an emotion
 			this.nextEmotion()
 		}
 
 		if(this.chrono<=5){
-			//style and animate chrono, like final countdown from smashbros
+			this.timerEl.animTimer()
 		}
 
 		if(this.chrono<=0){
@@ -173,8 +214,13 @@ class Game {
 
 	//region score
 	updateProgressBar(){
-		this.scoreProgressBarEl.children[0].innerText = "" + (this.emotionCount+1) + "/" +  this.emotionsTodo.length
-		this.scoreProgressBarEl.children[0].style.width = "" + ((this.emotionCount+1)/this.emotionsTodo.length *100) + "%"
+		if(this.isMarathonMode){
+			this.scoreProgressBarEl.children[0].innerText = "" + (this.emotionCount+1)
+		}
+		else{
+			this.scoreProgressBarEl.children[0].innerText = "" + (this.emotionCount+1) + "/" +  this.emotionsTodo.length
+			this.scoreProgressBarEl.children[0].style.width = "" + ((this.emotionCount+1)/this.emotionsTodo.length *100) + "%"
+		}
 	}
 	//endregion
 }

@@ -286,7 +286,6 @@ button.depth:active {
   line-height: 86px;
 }
 
-
 /*region GAME SCREEN*/
 
 .hiddenItem{
@@ -338,6 +337,8 @@ button.depth:active {
 }
 #timer{
   text-align: center;
+  font-size: 2em;
+  z-index:1001;
 }
 
 .progressBar{
@@ -405,6 +406,22 @@ button.depth:active {
   flex: 1 1;
   height: 100%;
 }
+
+
+#emotionToReproduct, #currentEmotion{
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  font-size: 2em;
+}
 /*endregion center game screeen*/
 
+.gradientText{
+  background: -webkit-linear-gradient(red, yellow);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: bold;
+  -webkit-text-stroke: 2px #000;
+
+}
 /*endregion GAME SCREEN*/

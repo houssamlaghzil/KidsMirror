@@ -52,19 +52,26 @@
         <div style="width:0"></div>
       </div>
     </div>
-    <div id="timer"></div>
+    <div id="timer" class="gradientText"></div>
     <div></div>
   </div>
 
   <div id="centerGameScreen">
     <div id="centerGameEmotion" class="hiddenItem">
-      <div id="emotionToReproduct"></div>
-      <div id="currentEmotion"></div>
+      <div id="emotionToReproduct" style="align-items: flex-start">
+        <div>
+          <div class="gradientText">Mime moi</div>
+        </div>
+      </div>
+      <div id="currentEmotion">
+        <div class="gradientText">Ton émotion</div>
+      </div>
     </div>
     <div id="centerGameDifficulty" class="hiddenItem">
       <div class="difficultySelect" onclick="gameObj.launchGame(1)">Facile</div>
       <div class="difficultySelect" onclick="gameObj.launchGame(2)">Moyen</div>
       <div class="difficultySelect" onclick="gameObj.launchGame(3)">Difficile</div>
+      <div class="difficultySelect" onclick="gameObj.launchGame(4)">Marathon</div>
     </div>
   </div>
 
@@ -114,7 +121,6 @@
   let firstPlay = true;
 
   setInterval(async () => {
-    if(!isGameMode) {
       console.log("emotions values identified", tab)
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function () {
@@ -136,12 +142,17 @@
       xhttp.send();
 
       if (firstPlay || tab[tab.length - 2] != tab[tab.length - 1]) {
-        document.body.style = "background-image: url('" + emotionsObj[emotion].img + "');background-position: center;\n" +
+        const curEmotion = emotionsObj[emotion]
+        if(isGameMode){
+          gameObj.showUserEmotion(curEmotion)
+          gameObj.checkEmotion(emotion)
+        }
+        else{
+          document.body.style = "background-image: url('" + curEmotion.img + "');background-position: center;\n" +
           "  background-repeat: no-repeat;\n" +
           "  background-size: cover;"
-
+        }
       }
-    }
   }, 2000);
 
   function doRequest(url, token, uri, index) {
