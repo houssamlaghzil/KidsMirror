@@ -89,3 +89,8 @@ HTMLElement.prototype.animTimer = function(){
 }
 
 //endregion
+
+HTMLAudioElement.prototype.stopIt = function(){
+	this.pause()
+	this.currentTime = 0
+}

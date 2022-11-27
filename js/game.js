@@ -28,6 +28,13 @@ class Game {
 		}
 	}
 	isMarathonMode = false
+	audios = {
+		audioGameAmbiance: new Audio('sounds/game.mp3'),
+		audioSuccess:new Audio('sounds/success.mp3'),
+		audioEndgame:new Audio('sounds/endgame.mp3'),
+	}
+	audioVolume = .7 // [0;1]
+	isMuted = false
 
 	constructor(gameScreenEl, endOfGameScreenEl) {
 		this.gameScreenEl = gameScreenEl
@@ -40,6 +47,26 @@ class Game {
 
 		this.endGameScoreEl = this.endOfGameScreenEl.querySelector("#endGameScore")
 		this.endGameMsgEl = this.endOfGameScreenEl.querySelector("#endGameMsg")
+
+		//region audio setting element
+		this.audioMuteEl = this.gameScreenEl.querySelector("#soundMute")
+		this.audioMuteEl.onclick = function(){
+			this.audioMuteEl.src = "img/" + (this.isMuted ? "unmuted.png" : "muted.png")
+			this.muteAudio(!this.isMuted)
+		}.bind(this)
+
+		this.audioVolumeEl = this.gameScreenEl.querySelector("#soundVolumeRange")
+		this.soundVolumeRatioEl = this.gameScreenEl.querySelector("#soundVolumeRatio")
+		this.audioVolumeEl.onchange = function(event){
+			this.setAudioVolume(event.target.value/100)
+			this.soundVolumeRatioEl.innerText = event.target.value + "%"
+		}.bind(this)
+		this.audioVolumeEl.value = this.audioVolume*100
+		this.soundVolumeRatioEl.innerText = (this.audioVolume*100) + "%"
+
+		//endregion
+
+		this.audios.audioGameAmbiance.loop = true
 	}
 
 
@@ -86,6 +113,7 @@ class Game {
 		this.chrono = this.MAX_CHRONO
 		this.chronoId = setInterval(this.decrementChrono.bind(this), 1000)
 		this.setTimerElementValue(false)
+		this.audios.audioGameAmbiance.play();
 	}
 	_fillEmotions(){
 		const emotionsObjCopy = {... emotionsObj}
@@ -105,13 +133,32 @@ class Game {
 	}
 	//endregion
 
+	//region handle audio
+	setAudioVolume(newVolume){
+		console.log("should set volume")
+		this.audioVolume = newVolume
+		const audiosList = Object.keys(this.audios)
+		for(let i=0; i<audiosList.length; i++){
+			this.audios[audiosList[i]].volume = newVolume
+		}
+	}
+	muteAudio(shouldMute){
+		this.isMuted = shouldMute
+		const audiosList = Object.keys(this.audios)
+		for(let i=0; i<audiosList.length; i++){
+			this.audios[audiosList[i]].muted = shouldMute
+		}
+	}
+	//endregion
+
 	/**
 	 * should be called when user do a new emotion
 	 * @param emotion
 	 */
 	checkEmotion(emotion){
 		console.log("CHECK EMOTION", emotion, this.emotionsTodo[this.emotionCount])
-		if(emotion == this.emotionsTodo[this.emotionCount]){
+		if(this.chrono >0 && emotion == this.emotionsTodo[this.emotionCount]){
+			this.audios.audioSuccess.play()
 			this.nextEmotion()
 		}
 	}
@@ -142,6 +189,8 @@ class Game {
 
 	//region end of game
 	endOfGame(){
+		this.audios.audioGameAmbiance.stopIt()
+		this.audios.audioEndgame.play()
 		this.stopChrono()
 		this.setTimerElementValue(true)
 		let msg = ""
@@ -173,6 +222,7 @@ class Game {
 	 * use to quit game mode,
 	 */
 	quitGame(){
+		this.audios.audioGameAmbiance.stopIt()
 		if(this.endOfGameScreenEl.hasClass("hiddenItem")){
 			this.gameScreenEl.animateShow(false)
 		}
