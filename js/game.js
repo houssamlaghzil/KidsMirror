@@ -146,7 +146,7 @@ class Game {
 		this.setTimerElementValue(true)
 		let msg = ""
 
-		this.endGameScoreEl.innerText = "" + this.emotionCount + (this.isMarathonMode ? " en " + getTimeFormatted(this.MAX_CHRONO) :  "/" + this.emotionsTodo.length)
+		this.endGameScoreEl.innerText = "" + this.emotionCount + (this.isMarathonMode ? " en " + getTimeFormatted(this.MAX_CHRONO, {displayTimeUnit:true}) :  "/" + this.emotionsTodo.length)
 		const ratio = (this.isMarathonMode ? this.emotionCount / this.MAX_CHRONO : this.emotionCount / this.emotionsTodo.length) * 100
 
 		//region messages depending on ratio

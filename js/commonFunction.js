@@ -29,17 +29,6 @@ function isNullOrUndefined(value){
 	return value === undefined || value === null || value === "";
 }
 
-function getTimeFormatted(timeInSec){
-	const mn = Math.floor(timeInSec / 60)
-	const sec = timeInSec%60
-	return (mn >0 ? mn.toString().padStart(2 , "0") + ":" : "") + sec.toString().padStart(2 , "0")
-}
-
-function randomInt(min, max) {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-
 function handleOptions(options, field, defaultVal, ignoreEmptyField){
 	if (!isNullOrUndefined(options) && !isNullOrUndefined(options[field])
 		&& ( (!isNullOrUndefined(options[field])  || options[field]===false || options===0) || ignoreEmptyField)){
@@ -59,6 +48,18 @@ function HO(options, field, defaultVal=null, ignoreEmptyField=false){
 	}
 	return handleOptions(options, field, defaultVal, ignoreEmptyField);
 }
+
+function getTimeFormatted(timeInSec, options={}){
+	const mn = Math.floor(timeInSec / 60)
+	const sec = timeInSec%60
+	const displayUnit = HO(options, "displayTimeUnit", false)
+	return (mn >0 ? mn.toString().padStart(2 , "0") + (displayUnit ? "mn" : ":") : "") + sec.toString().padStart(2 , "0") + (displayUnit && mn <=0? "s" : "")
+}
+
+function randomInt(min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 
 //region animation
 HTMLElement.prototype.animAppear = function(options={}){
